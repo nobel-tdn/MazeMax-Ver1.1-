@@ -26,6 +26,11 @@ let soundMuted = false;
 let soundVolume = 0.8;
 let soundStarted = false;
 
+// --- Sound Refresh System ---
+let soundRefreshInterval = 210 * 1000; // 3分半 = 210秒
+let lastSoundRefresh = 0;
+let soundRefreshEnabled = true;
+
 // --- Instructions UI ---
 let instructionsClosed = false;
 
@@ -104,6 +109,9 @@ function setup() {
   window.addEventListener('keydown', startSoundIfNeeded, {once:true});
   updateInstructions();
   setupInstructionsUI();
+  
+  // サウンドリフレッシュタイマー開始
+  lastSoundRefresh = millis();
 }
 
 function calcMazeOffset() {
@@ -134,6 +142,13 @@ function initStage() {
 
 function draw() {
   background(255);
+  
+  // サウンドリフレッシュチェック
+  if (soundRefreshEnabled && millis() - lastSoundRefresh > soundRefreshInterval) {
+    refreshAllSounds();
+    lastSoundRefresh = millis();
+  }
+  
   // 迷路・プレイヤーなどは中央に描画
   push();
   translate(mazeOffsetX, mazeOffsetY);
@@ -226,6 +241,9 @@ function keyPressed(){
   }
   if(key==='M'||key==='m'){
     toggleMute();
+  }
+  if(key==='R'||key==='r'){
+    toggleSoundRefresh();
   }
 }
 function playerHit(){
@@ -393,7 +411,7 @@ function drawHUD(){
   const hud = document.getElementById('hud');
   if (!hud) return;
   let scoreText = lastStageScore > 0 ? `Score: ${lastStageScore}s` : '';
-  hud.innerHTML = `Stage: ${stage}　Coins left: ${coins.length}　Lives: ${player.lives}　${scoreText ? '｜　'+scoreText : ''}　｜　Sound: <b>${soundMuted ? 'OFF' : 'ON'}</b> (M)`;
+  hud.innerHTML = `Stage: ${stage}　Coins left: ${coins.length}　Lives: ${player.lives}　${scoreText ? '｜　'+scoreText : ''}　｜　Sound: <b>${soundMuted ? 'OFF' : 'ON'}</b> (M)　Refresh: <b>${soundRefreshEnabled ? 'ON' : 'OFF'}</b> (R)`;
 }
 
 function updateInstructions() {
@@ -402,9 +420,9 @@ function updateInstructions() {
   const el = document.getElementById('instructions');
   if (!el) return;
   el.innerHTML =
-    '操作: <b>矢印キー/WASD</b>またはスティックで移動、<b>ショットボタン/スペース</b>で弾を発射。<br>コインを全て集めて<b>赤いゴール</b>へ！'
+    '操作: <b>矢印キー/WASD</b>またはスティックで移動、<b>ショットボタン/スペース</b>で弾を発射。<br>コインを全て集めて<b>赤いゴール</b>へ！<br><b>Mキー</b>でサウンドON/OFF、<b>Rキー</b>でサウンドリフレッシュON/OFF'
     + '<br><br>' +
-    'Controls: Move with <b>arrows/WASD</b> or stick, shoot with <b>button/space</b>.<br>Collect all coins and reach the <b>red goal</b>!';
+    'Controls: Move with <b>arrows/WASD</b> or stick, shoot with <b>button/space</b>.<br>Collect all coins and reach the <b>red goal</b>!<br><b>M key</b> for sound ON/OFF, <b>R key</b> for sound refresh ON/OFF';
 }
 
 function setupInstructionsUI() {
@@ -500,6 +518,61 @@ function loadSounds() {
   }
 }
 
+function refreshAllSounds() {
+  console.log('🔄 Refreshing all sounds...');
+  
+  // BGMの再生状態を保存
+  let bgMusicWasPlaying = false;
+  if (bgMusic && bgMusic.isLoaded() && bgMusic.isPlaying()) {
+    bgMusicWasPlaying = true;
+    bgMusic.pause();
+  }
+  
+  // 移動音の再生状態を保存
+  let moveSoundWasPlaying = false;
+  if (moveSound && moveSound.isLoaded() && moveSound.isPlaying()) {
+    moveSoundWasPlaying = true;
+    moveSound.pause();
+  }
+  
+  // すべてのサウンドを再ロード
+  try {
+    moveSound = loadSound('assets/sounds/move.mp3', () => {
+      console.log('✅ moveSound refreshed');
+      if (moveSoundWasPlaying && !soundMuted) {
+        moveSound.setVolume(soundVolume);
+        moveSound.play();
+      }
+    }, soundError);
+    
+    shootSound = loadSound('assets/sounds/shoot.mp3', () => {
+      console.log('✅ shootSound refreshed');
+    }, soundError);
+    
+    hitSound = loadSound('assets/sounds/hit.mp3', () => {
+      console.log('✅ hitSound refreshed');
+    }, soundError);
+    
+    coinSound = loadSound('assets/sounds/coin.mp3', () => {
+      console.log('✅ coinSound refreshed');
+    }, soundError);
+    
+    bgMusic = loadSound('assets/sounds/bg_music.mp3', () => {
+      console.log('✅ bgMusic refreshed');
+      if (bgMusic && bgMusic.isLoaded()) {
+        bgMusic.setVolume(soundVolume * 0.3); // BGM is quieter
+        if (bgMusicWasPlaying && !soundMuted) {
+          bgMusic.loop();
+        }
+      }
+    }, soundError);
+    
+    console.log('🎵 All sounds refreshed successfully!');
+  } catch (e) {
+    console.log('❌ Sound refresh error:', e);
+  }
+}
+
 function soundLoaded() {
   console.log('Sound loaded successfully');
   // BGMはstartSoundIfNeededでのみ再生
@@ -560,6 +633,16 @@ function toggleMute() {
   } else {
     if (bgMusic && bgMusic.isLoaded()) bgMusic.loop();
     console.log('Sound unmuted');
+  }
+}
+
+function toggleSoundRefresh() {
+  soundRefreshEnabled = !soundRefreshEnabled;
+  if (soundRefreshEnabled) {
+    lastSoundRefresh = millis(); // リセット
+    console.log('Sound refresh enabled');
+  } else {
+    console.log('Sound refresh disabled');
   }
 }
 

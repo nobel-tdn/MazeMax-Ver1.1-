@@ -365,8 +365,8 @@ function updatePathfinderEnemies() {
 function drawGoal(){fill(coins.length===0?'red':'gray');rect(goal.i*cellSize+cellSize*.25,goal.j*cellSize+cellSize*.25,cellSize*.5,cellSize*.5)}
 function checkGoalReached(){
   if(player.i===goal.i&&player.j===goal.j&&coins.length===0){
-    // スコア計算（経過秒数）
-    lastStageScore = ((millis() - stageStartTime) / 1000).toFixed(2);
+    // スコア計算（経過秒数、整数のみ）
+    lastStageScore = Math.floor((millis() - stageStartTime) / 1000);
     stage++;
     cols=min(80,cols+5);
     rows=min(80,rows+5);

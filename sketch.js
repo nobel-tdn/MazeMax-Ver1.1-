@@ -462,11 +462,18 @@ function soundError(err) {
   console.log('Sound loading error:', err);
 }
 
+let lastMoveSoundTime = 0;
+const moveSoundInterval = 120; // ms
+
 function playMoveSound() {
   if (moveSound && moveSound.isLoaded() && !soundMuted) {
-    moveSound.stop();
-    moveSound.setVolume(soundVolume);
-    moveSound.play();
+    const now = millis();
+    if (now - lastMoveSoundTime > moveSoundInterval) {
+      moveSound.stop();
+      moveSound.setVolume(soundVolume);
+      moveSound.play();
+      lastMoveSoundTime = now;
+    }
   }
 }
 

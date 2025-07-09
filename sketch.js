@@ -108,7 +108,7 @@ function setup() {
 
 function calcMazeOffset() {
   mazeOffsetX = (width - cols * cellSize) / 2;
-  mazeOffsetY = (height - rows * cellSize) / 2 + 40;
+  mazeOffsetY = (height - rows * cellSize) / 2;
 }
 
 let stageStartTime = 0;
@@ -460,7 +460,7 @@ function drawTrail(){fill(100,100,200,50);noStroke();for(let s of visitedTrail){
 // =============================================================
 //  FALLING BLOCKS (Outline added to drawBlocks)
 // =============================================================
-function spawnFallingBlock(){if(millis()-lastBlockTime>blockSpawnInterval){const tetromino=random(tetrominoes);const shape=tetromino.shape;const shapeWidth=shape[0].length;const i=floor(random(cols-shapeWidth+1));const newBlock={i:i,x:i*cellSize,y:-shape.length*cellSize,shape:shape,color:tetromino.color,};blocks.push(newBlock);lastBlockTime=millis()}}
+function spawnFallingBlock(){if(millis()-lastBlockTime>blockSpawnInterval){const tetromino=random(tetrominoes);const shape=tetromino.shape;const shapeWidth=shape[0].length;const i=floor(random(cols-shapeWidth+1));const newBlock={i:i,x:i*cellSize,y:-shape.length*cellSize - 30,shape:shape,color:tetromino.color,};blocks.push(newBlock);lastBlockTime=millis()}}
 function updateBlocks(){spawnFallingBlock();for(let i=blocks.length-1;i>=0;i--){const b=blocks[i];b.y+=BLOCK_FALL_SPEED;if(b.y>height){blocks.splice(i,1);continue}
 let hitPlayer=false;for(let r=0;r<b.shape.length;r++){for(let c=0;c<b.shape[r].length;c++){if(b.shape[r][c]){const blockCellX=b.x+c*cellSize;const blockCellY=b.y+r*cellSize;const playerX=player.i*cellSize;const playerY=player.j*cellSize;if(playerX<blockCellX+cellSize&&playerX+cellSize>blockCellX&&playerY<blockCellY+cellSize&&playerY+cellSize>blockCellY){hitPlayer=true;break}}}
 if(hitPlayer)break}

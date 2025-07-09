@@ -99,6 +99,7 @@ function setup() {
   // ユーザー操作でサウンド開始
   window.addEventListener('touchstart', startSoundIfNeeded, {once:true});
   window.addEventListener('keydown', startSoundIfNeeded, {once:true});
+  updateInstructions();
 }
 
 function calcMazeOffset() {
@@ -381,6 +382,7 @@ function windowResized() {
   cellSize = getMaxCellSize();
   resizeCanvas(windowWidth, windowHeight);
   calcMazeOffset();
+  updateInstructions();
 }
 
 function drawHUD(){
@@ -388,6 +390,15 @@ function drawHUD(){
   if (!hud) return;
   let scoreText = lastStageScore > 0 ? `Score: ${lastStageScore}s` : '';
   hud.innerHTML = `Stage: ${stage}　Coins left: ${coins.length}　Lives: ${player.lives}　${scoreText ? '｜　'+scoreText : ''}　｜　Sound: <b>${soundMuted ? 'OFF' : 'ON'}</b> (M)`;
+}
+
+function updateInstructions() {
+  const el = document.getElementById('instructions');
+  if (!el) return;
+  el.innerHTML =
+    '操作: <b>矢印キー/WASD</b>またはスティックで移動、<b>ショットボタン/スペース</b>で弾を発射。<br>コインを全て集めて<b>赤いゴール</b>へ！'
+    + '<br><br>' +
+    'Controls: Move with <b>arrows/WASD</b> or stick, shoot with <b>button/space</b>.<br>Collect all coins and reach the <b>red goal</b>!';
 }
 
 // =============================================================

@@ -520,22 +520,43 @@ function loadSounds() {
 
 function refreshAllSounds() {
   console.log('🔄 Refreshing all sounds...');
-  
+
+  // AudioContextの完全リセット
+  try {
+    let ctx = getAudioContext();
+    if (ctx && ctx.state !== 'closed') {
+      ctx.close().then(() => {
+        // 新しいAudioContextを作成
+        window._customAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+        // p5.jsの内部AudioContextを上書き
+        p5.prototype._audioContext = window._customAudioContext;
+        p5.prototype.getAudioContext = function() { return window._customAudioContext; };
+        console.log('🔁 AudioContext reset!');
+        // サウンド再ロード
+        actuallyReloadSounds();
+      });
+      return; // 非同期なのでここでreturn
+    }
+  } catch (e) {
+    console.log('AudioContext reset error:', e);
+  }
+  // 既存のサウンド再ロード
+  actuallyReloadSounds();
+}
+
+function actuallyReloadSounds() {
   // BGMの再生状態を保存
   let bgMusicWasPlaying = false;
   if (bgMusic && bgMusic.isLoaded() && bgMusic.isPlaying()) {
     bgMusicWasPlaying = true;
     bgMusic.pause();
   }
-  
   // 移動音の再生状態を保存
   let moveSoundWasPlaying = false;
   if (moveSound && moveSound.isLoaded() && moveSound.isPlaying()) {
     moveSoundWasPlaying = true;
     moveSound.pause();
   }
-  
-  // すべてのサウンドを再ロード
   try {
     moveSound = loadSound('assets/sounds/move.mp3', () => {
       console.log('✅ moveSound refreshed');
@@ -544,19 +565,15 @@ function refreshAllSounds() {
         moveSound.play();
       }
     }, soundError);
-    
     shootSound = loadSound('assets/sounds/shoot.mp3', () => {
       console.log('✅ shootSound refreshed');
     }, soundError);
-    
     hitSound = loadSound('assets/sounds/hit.mp3', () => {
       console.log('✅ hitSound refreshed');
     }, soundError);
-    
     coinSound = loadSound('assets/sounds/coin.mp3', () => {
       console.log('✅ coinSound refreshed');
     }, soundError);
-    
     bgMusic = loadSound('assets/sounds/bg_music.mp3', () => {
       console.log('✅ bgMusic refreshed');
       if (bgMusic && bgMusic.isLoaded()) {
@@ -566,7 +583,6 @@ function refreshAllSounds() {
         }
       }
     }, soundError);
-    
     console.log('🎵 All sounds refreshed successfully!');
   } catch (e) {
     console.log('❌ Sound refresh error:', e);

@@ -27,7 +27,7 @@ let soundVolume = 0.8;
 let soundStarted = false;
 
 // --- Sound Refresh System ---
-let soundRefreshInterval = 210 * 1000; // 3分半 = 210秒
+let soundRefreshInterval = 90 * 1000; // 1分半 = 90秒
 let lastSoundRefresh = 0;
 let soundRefreshEnabled = true;
 

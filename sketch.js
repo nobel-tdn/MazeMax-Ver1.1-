@@ -519,10 +519,11 @@ function playMoveSound() {
   if (moveSound && moveSound.isLoaded() && !soundMuted) {
     const now = millis();
     if (now - lastMoveSoundTime > moveSoundInterval) {
-      moveSound.stop();
-      moveSound.setVolume(soundVolume);
-      moveSound.play();
-      lastMoveSoundTime = now;
+      if (!moveSound.isPlaying()) { // 再生中は新たにplayしない
+        moveSound.setVolume(soundVolume);
+        moveSound.play();
+        lastMoveSoundTime = now;
+      }
     }
   }
 }

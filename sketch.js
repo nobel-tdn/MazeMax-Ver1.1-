@@ -26,6 +26,9 @@ let soundMuted = false;
 let soundVolume = 0.8;
 let soundStarted = false;
 
+// --- Instructions UI ---
+let instructionsClosed = false;
+
 function startSoundIfNeeded() {
   if (!soundStarted) {
     if (bgMusic && bgMusic.isLoaded() && !soundMuted) {
@@ -100,11 +103,12 @@ function setup() {
   window.addEventListener('touchstart', startSoundIfNeeded, {once:true});
   window.addEventListener('keydown', startSoundIfNeeded, {once:true});
   updateInstructions();
+  setupInstructionsUI();
 }
 
 function calcMazeOffset() {
   mazeOffsetX = (width - cols * cellSize) / 2;
-  mazeOffsetY = (height - rows * cellSize) / 2;
+  mazeOffsetY = (height - rows * cellSize) / 2 - 40;
 }
 
 let stageStartTime = 0;
@@ -393,12 +397,47 @@ function drawHUD(){
 }
 
 function updateInstructions() {
+  if (instructionsClosed) return; // 閉じられている場合は更新しない
+  
   const el = document.getElementById('instructions');
   if (!el) return;
   el.innerHTML =
     '操作: <b>矢印キー/WASD</b>またはスティックで移動、<b>ショットボタン/スペース</b>で弾を発射。<br>コインを全て集めて<b>赤いゴール</b>へ！'
     + '<br><br>' +
     'Controls: Move with <b>arrows/WASD</b> or stick, shoot with <b>button/space</b>.<br>Collect all coins and reach the <b>red goal</b>!';
+}
+
+function setupInstructionsUI() {
+  // ローカルストレージから閉じた状態を確認
+  const closed = localStorage.getItem('instructionsClosed');
+  if (closed === 'true') {
+    instructionsClosed = true;
+    hideInstructions();
+  }
+  
+  // ×ボタンのイベントリスナーを設定
+  const closeBtn = document.getElementById('close-instructions');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', function() {
+      instructionsClosed = true;
+      localStorage.setItem('instructionsClosed', 'true');
+      hideInstructions();
+    });
+  }
+}
+
+function hideInstructions() {
+  const container = document.getElementById('instructions-container');
+  if (container) {
+    container.style.display = 'none';
+  }
+}
+
+function showInstructions() {
+  const container = document.getElementById('instructions-container');
+  if (container) {
+    container.style.display = 'block';
+  }
 }
 
 // =============================================================

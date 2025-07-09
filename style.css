@@ -201,3 +201,32 @@ canvas {
   z-index: 1050;
   pointer-events: none;
 }
+
+#instructions {
+  position: fixed;
+  left: 2vw;
+  bottom: 3vh;
+  min-width: 180px;
+  max-width: 38vw;
+  z-index: 2100;
+  background: rgba(255,255,255,0.95);
+  color: #222;
+  font-size: 16px;
+  font-family: 'Segoe UI', 'Arial', sans-serif;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+  padding: 1em 1.2em 1em 1.2em;
+  line-height: 1.6;
+  letter-spacing: 0.5px;
+  user-select: none;
+  pointer-events: none;
+}
+@media (max-width: 600px) {
+  #instructions {
+    font-size: 4vw;
+    min-width: 120px;
+    max-width: 70vw;
+    padding: 0.8em 1em 0.8em 1em;
+    bottom: 18vh; /* avoid mobile controls */
+  }
+}
